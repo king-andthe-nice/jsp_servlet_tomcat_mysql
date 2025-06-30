@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  mysql:
+    # image: mysql:5.7
+              #### image: ./mysql  # 错误写法  image 字段正常是用来指定 已经存在的镜像名称（含标签
+    # 正确构建并同时给镜像起个新名字: build + image 组合，指定构建后镜像名
+    build:
+      context: ./mysql  # Dockerfile 所在目录（含 mysql/Dockerfile、mysql/my.cnf）
+      # dockerfile: Dockerfile  # 可选，指定目录里 Dockerfile 文件名，默认就是 Dockerfile
+    # 给构建出来的镜像打标签，这样就和官方 mysql:5.7 区分开了
+    image: code-webapp-mysql:5.7-custom  # 自定义镜像名+标签，和官方 mysql:5.7 区分开
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: studentinfomanagement
+      # MYSQL_INITDB_ARGS: "--character-set-server=utf8 --collation-server=utf8_general_ci"
+      # 移除 MYSQL_INITDB_ARGS，改用以下变量
+      # MYSQL_CHARSET: utf8mb4
+      # MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./ddl.sql:/docker-entrypoint-initdb.d/init.sql
+      # - ./mysql_config/my.cnf:/etc/mysql/my.cnf  # 新增挂载配置
+    ports:
+      - "3307:3306"
+
+  webapp:
+    build: .
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      # - DB_URL=jdbc:mysql://mysql:3306/studentinfomanagement?useUnicode=true&characterEncoding=UTF-8&useSSL=false&characterSetResults=utf8mb4
+      - DB_URL=jdbc:mysql://mysql:3306/studentinfomanagement?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      - DB_USER=root
+      - DB_PASSWORD=root
+
+volumes:
+  mysql_data:

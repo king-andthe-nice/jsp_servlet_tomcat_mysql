@@ -1,53 +1,55 @@
-create database StudentInfoManagement;
-use StudentInfoManagement;
+create database if not exists studentinfomanagement 
+  default character set utf8 
+  collate utf8_general_ci;
+use studentinfomanagement;
 #建表
 
 #院系表
-create table Department(
+create table department(
 Dno char(12),
 Dname char(12),
 constraint primary key PK_Department (Dno)
 );
 #班级表
-create table Class(
+create table class(
 Clno char(12),
 Clname char(12),
 Dno char(12),
 constraint primary key PK_Class (Clno),
-constraint foreign key FK_Class_Department (Dno) references Department(Dno)
+constraint foreign key FK_Class_Department (Dno) references department(Dno)
 );
 #学生表
-create table Student(
+create table student(
 Sno char(12),
 Sname char(8),
-Ssex char(2) check(Ssex in ('男','女')),
+Ssex char(3) check(Ssex in ('男','女')),
 Sage smallint check(Sage > 0),
 Clno char(12),
 constraint primary key PK_Student (Sno),
-constraint foreign key FK_Student_Class (Clno) references Class(Clno)
+constraint foreign key FK_Student_Class (Clno) references class(Clno)
 );
 #课程表
-create table Course(
+create table course(
 Cno char(12),
-Cname char(12),
+Cname char(21),
 Cteacher char(8),
 Ccredit smallint check(Ccredit > 0),
 constraint primary key PK_Course (Cno)
 );
 #选课表
-create table SC(
+create table sc(
 Sno char(12),
 Cno char(12),
 Grade smallint check(Grade < 100 and Grade > 0),
-constraint foreign key FK_SC_Student (Sno) references Student(Sno),
-constraint foreign key FK_SC_Course (Cno) references Course(Cno),
+constraint foreign key FK_SC_Student (Sno) references student(Sno),
+constraint foreign key FK_SC_Course (Cno) references course(Cno),
 constraint primary key PK_SC (Sno,Cno)
 );
 #用户表
-create table User(
+create table user(
 username char(12),
 password char(12) not null,
-level char(6) check(level in ('用户','管理员')),
+level char(9) check(level in ('用户','管理员')),
 constraint primary key PK_User (username)
 );
 
@@ -91,23 +93,23 @@ values('2','数据库原理设计','李四',3);
 insert into course
 values('3','Java程序设计','王五',4);
 
-insert into SC
+insert into sc
 values('2015010312','1',50);
-insert into SC
+insert into sc
 values('2015010312','2',80);
-insert into SC
+insert into sc
 values('2015010312','3',70);
-insert into SC
+insert into sc
 values('2015010313','1',90);
-insert into SC
+insert into sc
 values('2015010313','2',89);
-insert into SC
+insert into sc
 values('2015010313','3',59);
-insert into SC
+insert into sc
 values('2015010314','1',85);
-insert into SC
+insert into sc
 values('2015010314','2',75);
-insert into SC
+insert into sc
 values('2015010314','3',95);
 
 insert into user
@@ -143,4 +145,4 @@ values('user','123','用户');
 #and class.Clno = student.Clno
 #and department.Dno = class.Dno
 #and cno = '1'
-#order by grade desc;
+#order by grade desc;    
